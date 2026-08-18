@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Pneumática Industrial v2.0 - Desafio de Engenharia</title>
+    <!-- Fonts Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Orbitron:wght@500;700;900&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #f1f5f9;
+            --bg-card: #ffffff;
+            --border-card: #cbd5e1;
+            --primary: #0284c7;
+            --primary-glow: rgba(2, 132, 199, 0.25);
+            --secondary: #2563eb;
+            --accent-orange: #ea580c;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --panel-bg: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Chakra Petch', sans-serif;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(2, 132, 199, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(37, 99, 235, 0.05) 0%, transparent 40%),
+                linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Header Header Topo */
+        header {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .brand-icon {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .brand-text h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--text-main);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .brand-text p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .progress-box {
+            text-align: right;
+        }
+
+        .progress-title {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-bar-bg {
+            width: 180px;
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 5px;
+            border: 1px solid var(--border-card);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 16.6%;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            transition: width 0.5s ease;
+        }
+
+        .audio-btn {
+            background: #f8fafc;
+            border: 1px solid var(--border-card);
+            color: var(--primary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .audio-btn:hover {
+            background: rgba(2, 132, 199, 0.1);
+            border-color: var(--primary);
+        }
+
+        /* Layout Main Grid */
+        .main-container {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Painel do Enunciado */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .badge-level {
+            font-family: 'Orbitron', sans-serif;
+            background: rgba(2, 132, 199, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .badge-difficulty {
+            color: var(--accent-orange);
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .enunciado-titulo {
+            font-size: 1.25rem;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .enunciado-texto {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            margin-bottom: 20px;
+        }
+
+        /* Especificações do problema */
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .spec-item {
+            background: #f8fafc;
+            border: 1px solid var(--border-card);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .spec-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .spec-value {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* Botão Dica/Calculadora */
+        .tools-bar {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-tool {
+            background: #f8fafc;
+            border: 1px solid var(--border-card);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-tool:hover {
+            background: rgba(2, 132, 199, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Simulador Visual (Animação) */
+        .viewport-container {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 12px;
+            border: 1px solid var(--border-card);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 20px;
+        }
+
+        /* Grade e marcas de curso */
+        .height-marks {
+            position: absolute;
+            left: 15px;
+            top: 20px;
+            bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.7rem;
+            border-left: 1px dashed var(--border-card);
+            padding-left: 6px;
+        }
+
+        /* Plataforma do Carro e Cilindro */
+        .assembly {
+            position: absolute;
+            bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 1.8s cubic-bezier(0.25, 1, 0.5, 1);
+            will-change: transform;
+        }
+
+        .car-container {
+            position: relative;
+            width: 180px;
+            height: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+            transition: transform 0.3s;
+        }
+
+        .car-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .platform {
+            width: 200px;
+            height: 12px;
+            background: linear-gradient(90deg, #64748b, #94a3b8, #64748b);
+            border-radius: 4px;
+            border: 1px solid #475569;
+            position: relative;
+        }
+
+        .platform::after {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 8px;
+            background: #334155;
+        }
+
+        .piston-rod {
+            width: 28px;
+            height: 140px;
+            background: linear-gradient(90deg, #cbd5e1 0%, #ffffff 50%, #94a3b8 100%);
+            border-left: 1px solid #94a3b8;
+            border-right: 1px solid #64748b;
+            z-index: 2;
+        }
+
+        .cylinder-body {
+            position: absolute;
+            bottom: -30px;
+            width: 80px;
+            height: 150px;
+            background: linear-gradient(90deg, #334155, #475569 40%, #334155 100%);
+            border: 2px solid #1e293b;
+            border-radius: 8px 8px 4px 4px;
+            z-index: 3;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+        }
+
+        .cylinder-glow {
+            position: absolute;
+            top: 10px;
+            bottom: 10px;
+            left: 6px;
+            right: 6px;
+            background: rgba(2, 132, 199, 0.0);
+            border-radius: 4px;
+            transition: background 1s ease;
+            z-index: 1;
+        }
+
+        .pneumatic-line {
+            position: absolute;
+            width: 6px;
+            background: #cbd5e1;
+            z-index: 1;
+            transition: background 0.5s;
+        }
+
+        .line-1 {
+            bottom: -10px;
+            right: calc(50% - 50px);
+            height: 80px;
+            width: 40px;
+            border-bottom: 4px solid #94a3b8;
+            border-right: 4px solid #94a3b8;
+            border-radius: 0 0 8px 0;
+        }
+
+        .ground-base {
+            width: 100%;
+            height: 30px;
+            background: repeating-linear-gradient(
+                -45deg,
+                #e2e8f0,
+                #e2e8f0 10px,
+                #cbd5e1 10px,
+                #cbd5e1 20px
+            );
+            border-top: 3px solid var(--primary);
+            position: absolute;
+            bottom: 0;
+            z-index: 4;
+        }
+
+        @keyframes pressureOverload {
+            0% { transform: translateY(0) scale(1); }
+            20% { transform: translateY(-30px) rotate(-3deg); }
+            40% { transform: translateY(-35px) rotate(3deg); }
+            60% { transform: translateY(-20px) rotate(-2deg); }
+            80% { transform: translateY(-5px) rotate(1deg); }
+            100% { transform: translateY(0) scale(1); }
+        }
+
+        .anim-fail {
+            animation: pressureOverload 1.2s ease-in-out;
+        }
+
+        /* Painel de Controles e Manômetro */
+        .controls-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            gap: 20px;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .gauge-wrapper {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .gauge-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .gauge-needle {
+            transform-origin: 50px 50px;
+            transform: rotate(-120deg);
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .gauge-val-display {
+            position: absolute;
+            bottom: 25px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--primary);
+            font-weight: bold;
+            background: #f8fafc;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-card);
+        }
+
+        .input-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-box label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group-custom {
+            display: flex;
+            align-items: center;
+            background: #f8fafc;
+            border: 2px solid var(--border-card);
+            border-radius: 12px;
+            padding: 4px 12px;
+            transition: all 0.3s;
+        }
+
+        .input-group-custom:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .input-group-custom input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            width: 130px;
+            text-align: center;
+        }
+
+        .unit-label {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1rem;
+            color: var(--primary);
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .btn-test {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-test:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
+            background: linear-gradient(135deg, #0369a1, #1d4ed8);
+        }
+
+        .btn-test:active {
+            transform: translateY(1px);
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, var(--success), #15803d);
+            box-shadow: 0 4px 15px rgba(22, 163, 74, 0.3);
+            display: none;
+        }
+
+        .btn-next:hover {
+            background: linear-gradient(135deg, #16a34a, #166534);
+        }
+
+        .feedback-banner {
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 15px;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .feedback-banner.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .feedback-banner.success {
+            background: #dcfce7;
+            border: 1px solid var(--success);
+            color: #14532d;
+        }
+
+        .feedback-banner.error {
+            background: #fee2e2;
+            border: 1px solid var(--danger);
+            color: #7f1d1d;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: var(--panel-bg);
+            border: 1px solid var(--primary);
+            border-radius: 16px;
+            padding: 25px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.4rem;
+            cursor: pointer;
+        }
+
+        .modal-close:hover { color: var(--text-main); }
+
+        .formula-box {
+            background: #f8fafc;
+            border-left: 4px solid var(--primary);
+            padding: 12px;
+            margin: 12px 0;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+
+        .completion-card {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+
+        .completion-card h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .trophy-icon {
+            font-size: 4rem;
+            margin: 20px 0;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header / Topo -->
+    <header>
+        <div class="brand">
+            <div class="brand-icon">⚙️</div>
+            <div class="brand-text">
+                <h1>Simulador Pneumático</h1>
+                <p>Laboratório de Mecatrônica & Automação (Sem Gravidade)</p>
+            </div>
+        </div>
+
+        <div class="header-status">
+            <div class="progress-box">
+                <div class="progress-title">Progresso: Nível <span id="lvl-num">1</span> de 6</div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progress-fill"></div>
+                </div>
+            </div>
+
+            <button class="audio-btn" id="audio-toggle" onclick="toggleAudio()">
+                <span id="audio-icon">🔊</span> Som ON
+            </button>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="main-container" id="main-app">
+        
+        <!-- Lado Esquerdo: Card de Enunciado -->
+        <section class="card">
+            <div>
+                <div class="card-header">
+                    <span class="badge-level" id="badge-level">MÓDULO 01</span>
+                    <span class="badge-difficulty" id="badge-diff">NÍVEL: INICIANTE</span>
+                </div>
+
+                <h2 class="enunciado-titulo" id="enunciado-titulo">Carregando Desafio...</h2>
+                <p class="enunciado-texto" id="enunciado-texto"></p>
+
+                <!-- Especificações Técnicas -->
+                <div class="specs-grid" id="specs-grid">
+                    <!-- Gerado via JS -->
+                </div>
+            </div>
+
+            <div class="tools-bar">
+                <button class="btn-tool" onclick="openModal('hint-modal')">💡 Dica & Fórmulas</button>
+                <button class="btn-tool" onclick="openModal('calc-modal')">🧮 Rascunho / Calculadora</button>
+            </div>
+        </section>
+
+        <!-- Lado Direito: Viewport do Atuador -->
+        <section class="card" style="padding: 12px;">
+            <div class="viewport-container" id="viewport">
+                
+                <div class="height-marks">
+                    <span>100%</span>
+                    <span>75%</span>
+                    <span>50%</span>
+                    <span>25%</span>
+                    <span>0%</span>
+                </div>
+
+                <div class="pneumatic-line line-1" id="p-line"></div>
+
+                <div class="assembly" id="assembly">
+                    <div class="car-container" id="car-element">
+                        <svg class="car-svg" viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="20" y="30" width="160" height="25" rx="6" fill="#2563eb" stroke="#1d4ed8" stroke-width="2"/>
+                            <path d="M40 30 L60 10 L140 10 L160 30 Z" fill="#1d4ed8" stroke="#1e40af" stroke-width="2"/>
+                            <path d="M65 14 L95 14 L95 28 L50 28 Z" fill="#93c5fd" opacity="0.8"/>
+                            <path d="M105 14 L135 14 L150 28 L105 28 Z" fill="#93c5fd" opacity="0.8"/>
+                            <circle cx="50" cy="55" r="14" fill="#1e293b" stroke="#64748b" stroke-width="3"/>
+                            <circle cx="50" cy="55" r="5" fill="#38bdf8"/>
+                            <circle cx="150" cy="55" r="14" fill="#1e293b" stroke="#64748b" stroke-width="3"/>
+                            <circle cx="150" cy="55" r="5" fill="#38bdf8"/>
+                            <circle cx="175" cy="38" r="4" fill="#0284c7"/>
+                        </svg>
+                    </div>
+
+                    <div class="platform"></div>
+                    <div class="piston-rod" id="piston-rod"></div>
+
+                    <div class="cylinder-body">
+                        <div class="cylinder-glow" id="cylinder-glow"></div>
+                        <span style="color:#cbd5e1; font-size:0.6rem; font-family:monospace; z-index:2;">ISO 15552</span>
+                        <span style="color:#38bdf8; font-size:0.6rem; font-family:monospace; z-index:2;">CYL-PNEU</span>
+                    </div>
+                </div>
+
+                <div class="ground-base"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Painel Inferior de Controles -->
+    <div class="controls-card" style="width: 100%; max-width: 1200px;">
+        
+        <div class="gauge-wrapper">
+            <svg class="gauge-svg" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+                <path d="M 20 75 A 35 35 0 1 1 80 75" fill="none" stroke="#e2e8f0" stroke-width="6" stroke-dasharray="2 3"/>
+                <path d="M 20 75 A 35 35 0 0 1 50 15" fill="none" stroke="#0284c7" stroke-width="3"/>
+                <path d="M 50 15 A 35 35 0 0 1 80 75" fill="none" stroke="#dc2626" stroke-width="3"/>
+                <g class="gauge-needle" id="gauge-needle">
+                    <polygon points="50,15 47,52 53,52" fill="#ea580c"/>
+                    <circle cx="50" cy="50" r="5" fill="#0f172a"/>
+                </g>
+            </svg>
+            <div class="gauge-val-display" id="gauge-val-display">0.0 Kgf/cm²</div>
+        </div>
+
+        <div class="input-box">
+            <label for="pressao-input">Pressão do Atuador:</label>
+            <div class="input-group-custom">
+                <input type="number" id="pressao-input" step="0.01" placeholder="0.00" oninput="updateGaugeFromInput()">
+                <span class="unit-label" id="unit-label">Kgf/cm²</span>
+            </div>
+        </div>
+
+        <button class="btn-test" id="btn-action" onclick="testarPressao()">
+            <span>EXECUTAR TESTE</span> ⚡
+        </button>
+
+        <button class="btn-test btn-next" id="btn-next" onclick="proximaQuestao()">
+            <span>PRÓXIMO DESAFIO</span> ➔
+        </button>
+    </div>
+
+    <!-- Banner de Mensagens de Feedback -->
+    <div class="feedback-banner" id="feedback-banner">
+        <span id="feedback-msg">Aguardando inserção de pressão...</span>
+        <span id="feedback-detail" style="font-size:0.85rem; opacity:0.8;"></span>
+    </div>
+
+    <!-- Tela de Sucesso Final -->
+    <div class="card completion-card" id="completion-screen" style="width: 100%; max-width: 800px; margin-top:20px;">
+        <div class="trophy-icon">🏆</div>
+        <h2>CERTIFICADO DE CONCLUSÃO</h2>
+        <p style="font-size: 1.2rem; color: var(--text-main); margin-bottom: 20px;">
+            Parabéns! Você demonstrou domínio nos cálculos de dimensionamento de atuadores pneumáticos industriais!
+        </p>
+        <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid var(--primary); margin-bottom: 25px;">
+            <p><strong>Classificação:</strong> <span style="color:var(--primary); font-size:1.3rem;">Engenheiro(a) de Automação Pleno</span></p>
+            <p style="color:var(--text-muted); font-size:0.9rem; margin-top:5px;">Precisão nos cálculos: 100% | 6 de 6 desafios concluídos</p>
+        </div>
+        <button class="btn-test" style="margin: 0 auto;" onclick="reiniciarSimulador()">REINICIAR SIMULADOR 🔄</button>
+    </div>
+
+    <!-- Modal Dica e Fórmulas -->
+    <div class="modal-overlay" id="hint-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('hint-modal')">&times;</button>
+            <h3 style="color:var(--primary); margin-bottom:10px;">💡 Formulário Técnico Pneumático</h3>
+            <p style="font-size:0.9rem; color:var(--text-main); margin-bottom:10px;" id="hint-text-custom">
+                Confira os conceitos necessários para resolver este exercício:
+            </p>
+            <div class="formula-box" id="formula-box">
+                P = F / A<br>
+                A = (π · D²) / 4
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:10px;">
+                Unidades utilizadas: Pressão em Kgf/cm², Força em Kgf, Área em cm².
+            </p>
+        </div>
+    </div>
+
+    <!-- Modal Calculadora Rápida -->
+    <div class="modal-overlay" id="calc-modal">
+        <div class="modal-content" style="max-width:350px;">
+            <button class="modal-close" onclick="closeModal('calc-modal')">&times;</button>
+            <h3 style="color:var(--primary); margin-bottom:15px;">🧮 Calculadora de Rascunho</h3>
+            <input type="text" id="calc-screen" readonly style="width:100%; font-family:'Orbitron'; font-size:1.5rem; text-align:right; padding:10px; background:#f8fafc; border:1px solid var(--primary); color:var(--primary); border-radius:8px; margin-bottom:15px;">
+            <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;">
+                <button class="btn-tool" style="justify-content:center;" onclick="calcInput('7')">7</button>
+                <button class="btn-tool" style="justify-content:center;" onclick="calcInput('8')">8</button>
+                <button class="btn-tool" style="justify-content:center;" onclick="calcInput('9')">9</button>
+                <button class="btn-tool" style="justify-content:center; color:var(--primary);" onclick="calcInput('/')">/</button>
+
+                <button class="btn-tool" style="justify-content:center;" onclick="calcInput('4')">4</button>
+                <button class="btn-tool" style="justify-content:center;" onclick="calcInput('5')">5</button>
+                <button class="btn-tool" style="justify-content:center;" onclick="calcInput('6')">6</button>
+                <button class="btn-tool" style="justify-content:center; color:var(--primary);" onclick="calcInput('*')">*</button>
+
+                <button class="btn-tool" style="justify-content:center;" onclick="calcInput('1')">1</button>
+                <button class="btn-tool" style="justify-content:center;" onclick="calcInput('2')">2</button>
+                <button class="btn-tool" style="justify-content:center;" onclick="calcInput('3')">3</button>
+                <button class="btn-tool" style="justify-content:center; color:var(--primary);" onclick="calcInput('-')">-</button>
+
+                <button class="btn-tool" style="justify-content:center;" onclick="calcInput('0')">0</button>
+                <button class="btn-tool" style="justify-content:center;" onclick="calcInput('.')">.</button>
+                <button class="btn-tool" style="justify-content:center; color:var(--danger);" onclick="calcClear()">C</button>
+                <button class="btn-tool" style="justify-content:center; color:var(--primary);" onclick="calcInput('+')">+</button>
+                
+                <button class="btn-tool" style="grid-column: span 4; justify-content:center; background:var(--primary); color:#fff; font-weight:bold;" onclick="calcEquals()">=</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script da Aplicação -->
+    <script>
+        const exercicios = [
+            {
+                id: 1,
+                modulo: "MÓDULO 01",
+                dificuldade: "NÍVEL: BÁSICO",
+                titulo: "Elevação Direta Sem Gravidade",
+                enunciado: "Um atuador pneumático precisa aplicar uma força direta de <strong>314 Kgf</strong> para mover uma carga em uma linha de montagem. O cilindro possui um pistão com diâmetro de <strong>10 cm</strong>. Calcule a pressão em Kgf/cm² para efetuar o movimento. (Adote π = 3,14).",
+                specs: [
+                    { label: "Força (F)", val: "314 Kgf" },
+                    { label: "Diâmetro Êmbolo (D)", val: "10 cm" },
+                    { label: "Constante π", val: "3.14" }
+                ],
+                unidade: "Kgf/cm²",
+                respostaGabarito: 4.0, // F = 314 Kgf, r = 5 cm, A = 3.14 * 25 = 78.5 cm². P = 314 / 78.5 = 4.0 Kgf/cm²
+                tolerancia: 0.15,
+                dica: "1) Raio r = D / 2 em cm<br>2) Área A = π · r² (cm²)<br>3) Pressão P = F / A (Kgf/cm²)",
+                formula: "F = 314 Kgf\nA = 3.14 × (5 cm)² = 78.5 cm²\nP = 314 / 78.5 = 4.0 Kgf/cm²"
+            },
+            {
+                id: 2,
+                modulo: "MÓDULO 02",
+                dificuldade: "NÍVEL: INTERMEDIÁRIO",
+                titulo: "Prensagem Industrial Directa",
+                enunciado: "Um atuador de prensagem exige uma força de acionamento constante de <strong>6000 Kgf</strong>. A área da base do pistão é de <strong>150 cm²</strong>. Calcule a pressão do sistema pneumático em Kgf/cm².",
+                specs: [
+                    { label: "Força (F)", val: "6000 Kgf" },
+                    { label: "Área Êmbolo (A)", val: "150 cm²" }
+                ],
+                unidade: "Kgf/cm²",
+                respostaGabarito: 40.0, // F = 6000 Kgf, A = 150 cm². P = 6000 / 150 = 40.0 Kgf/cm²
+                tolerancia: 0.15,
+                dica: "1) Pressão P = F / A em Kgf/cm²<br>2) P = 6000 / 150",
+                formula: "F = 6000 Kgf\nA = 150 cm²\nP = 6000 / 150 = 40.0 Kgf/cm²"
+            },
+            {
+                id: 3,
+                modulo: "MÓDULO 03",
+                dificuldade: "NÍVEL: AVANÇADO",
+                titulo: "Esforço Dinâmico de Estampagem",
+                enunciado: "Um processo de estampagem de chapas plásticas exige uma força total de impulso dinâmico de <strong>3540 Kgf</strong>. O diâmetro do êmbolo é de <strong>10 cm</strong>. Determine a pressão do fluido em Kgf/cm² (π = 3,14).",
+                specs: [
+                    { label: "Força Total (F)", val: "3540 Kgf" },
+                    { label: "Diâmetro (D)", val: "10 cm" }
+                ],
+                unidade: "Kgf/cm²",
+                respostaGabarito: 45.10, // F = 3540 Kgf. A = 3.14 * 25 = 78.5 cm². P = 3540 / 78.5 = 45.095 Kgf/cm²
+                tolerancia: 0.2,
+                dica: "1) Área A = 3,14 × (5 cm)² = 78,5 cm²<br>2) Pressão P = F / A<br>3) P = 3540 / 78,5 = 45,10 Kgf/cm²",
+                formula: "F = 3540 Kgf\nA = 78.5 cm²\nP = 3540 / 78.5 = 45.10 Kgf/cm²"
+            },
+            {
+                id: 4,
+                modulo: "MÓDULO 04",
+                dificuldade: "NÍVEL: AVANÇADO",
+                titulo: "Tração / Área Anular na Retração",
+                enunciado: "O cilindro trabalha no modo de **Tração** (retração para puxar uma carga) com força de **15000 Kgf**. O diâmetro do êmbolo é D = **12 cm** e o da haste d = **4 cm**. Calcule a pressão necessária em Kgf/cm² considerando a **Área Anular** útil (π = 3,14).",
+                specs: [
+                    { label: "Força (F)", val: "15000 Kgf" },
+                    { label: "Diâm. Êmbolo (D)", val: "12 cm" },
+                    { label: "Diâm. Haste (d)", val: "4 cm" }
+                ],
+                unidade: "Kgf/cm²",
+                respostaGabarito: 14.93, // F = 15000 Kgf. A_emb = 113.04 cm², A_haste = 12.56 cm². A_util = 100.48 cm². P = 15000 / 100.48 = 14.93 Kgf/cm²
+                tolerancia: 0.3,
+                dica: "1) Área útil = A_êmbolo - A_haste<br>2) A_êmbolo = 3,14 × 6² = 113,04 cm²<br>3) A_haste = 3,14 × 2² = 12,56 cm²<br>4) A_útil = 100,48 cm²<br>5) P = 15000 / 100,48",
+                formula: "F = 15000 Kgf\nA_util = 113.04 - 12.56 = 100.48 cm²\nP = 15000 / 100.48 = 14.93 Kgf/cm²"
+            },
+            {
+                id: 5,
+                modulo: "MÓDULO 05",
+                dificuldade: "NÍVEL: AVANÇADO",
+                titulo: "Atuação via Alavanca Mecânica",
+                enunciado: "O cilindro aciona uma alavanca mecânica para exercer uma força final sobre a carga de **18000 Kgf**. O braço da carga mede **L1 = 0,5 m** e o braço de atuação do cilindro mede **L2 = 1,5 m**. O êmbolo tem diâmetro de **10 cm**. Calcule a pressão de ar no manômetro em Kgf/cm².",
+                specs: [
+                    { label: "Força Carga", val: "18000 Kgf" },
+                    { label: "Braço Carga (L1)", val: "0.5 m" },
+                    { label: "Braço Atuador (L2)", val: "1.5 m" },
+                    { label: "Diâmetro Êmbolo", val: "10 cm" }
+                ],
+                unidade: "Kgf/cm²",
+                respostaGabarito: 7.64, // F_cil * 1.5 = 18000 * 0.5 => F_cil = 6000 Kgf. A = 78.5 cm². P = 6000 / 78.5 = 7.64 Kgf/cm²
+                tolerancia: 0.2,
+                dica: "1) Equilíbrio de Momentos: F_cilindro × L2 = F_carga × L1<br>2) F_cilindro = (18000 Kgf × 0,5 m) / 1,5 m = 6000 Kgf<br>3) Área A = 3,14 × 5² = 78,5 cm²<br>4) P = 6000 / 78,5 = 7,64 Kgf/cm²",
+                formula: "F_cilindro = (18000 × 0.5) / 1.5 = 6000 Kgf\nA = 78.5 cm²\nP = 6000 / 78.5 = 7.64 Kgf/cm²"
+            },
+            {
+                id: 6,
+                modulo: "MÓDULO 06",
+                dificuldade: "NÍVEL: ESPECIALISTA",
+                titulo: "Dimensionamento de Prensagem Direta",
+                enunciado: "Um equipamento pneumático precisa aplicar uma força contínua de **4000 Kgf**. A área do pistão é de **50 cm²**. Determine o valor exato da pressão em Kgf/cm².",
+                specs: [
+                    { label: "Força (F)", val: "4000 Kgf" },
+                    { label: "Área (A)", val: "50 cm²" }
+                ],
+                unidade: "Kgf/cm²",
+                respostaGabarito: 80.0, // P = 4000 / 50 = 80.0 Kgf/cm²
+                tolerancia: 1.0,
+                dica: "1) Pressão P = F / A<br>2) P = 4000 / 50 = 80 Kgf/cm²",
+                formula: "P = 4000 / 50 = 80.0 Kgf/cm²"
+            }
+        ];
+
+        let nivelAtual = 0;
+        let audioHabilitado = true;
+        let emAnimacao = false;
+
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+        }
+
+        function playSound(type) {
+            if (!audioHabilitado) return;
+            initAudio();
+
+            if (type === 'pressurize') {
+                const bufferSize = audioCtx.sampleRate * 0.5;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const output = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+                const whiteNoise = audioCtx.createBufferSource();
+                whiteNoise.buffer = buffer;
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(1000, audioCtx.currentTime);
+                filter.Q.setValueAtTime(3, audioCtx.currentTime);
+                whiteNoise.connect(filter);
+                filter.connect(audioCtx.destination);
+                whiteNoise.start();
+            } else if (type === 'success') {
+                const freqs = [523.25, 659.25, 783.99, 1046.50];
+                freqs.forEach((f, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(f, audioCtx.currentTime + idx * 0.08);
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + idx * 0.08 + 0.4);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(audioCtx.currentTime + idx * 0.08);
+                    osc.stop(audioCtx.currentTime + idx * 0.08 + 0.5);
+                });
+            } else if (type === 'fail') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.4);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
+            }
+        }
+
+        function toggleAudio() {
+            audioHabilitado = !audioHabilitado;
+            document.getElementById('audio-icon').innerText = audioHabilitado ? "🔊" : "🔇";
+            document.getElementById('audio-toggle').style.color = audioHabilitado ? "var(--primary)" : "var(--text-muted)";
+        }
+
+        function updateGaugeFromInput() {
+            const val = parseFloat(document.getElementById('pressao-input').value) || 0;
+            const unit = exercicios[nivelAtual].unidade;
+            document.getElementById('gauge-val-display').innerText = val.toFixed(1) + " " + unit;
+
+            let maxRange = 100;
+            let percent = Math.min(Math.max(val / maxRange, 0), 1);
+            let angle = -120 + (percent * 240);
+            
+            document.getElementById('gauge-needle').style.transform = `rotate(${angle}deg)`;
+        }
+
+        function carregarQuestao() {
+            if (nivelAtual >= exercicios.length) {
+                document.getElementById('main-app').style.display = 'none';
+                document.querySelector('.controls-card').style.display = 'none';
+                document.getElementById('feedback-banner').style.display = 'none';
+                document.getElementById('completion-screen').style.display = 'block';
+                playSound('success');
+                return;
+            }
+
+            const q = exercicios[nivelAtual];
+
+            document.getElementById('lvl-num').innerText = q.id;
+            document.getElementById('progress-fill').style.width = ((q.id / 6) * 100) + "%";
+
+            document.getElementById('badge-level').innerText = q.modulo;
+            document.getElementById('badge-diff').innerText = q.dificuldade;
+            document.getElementById('enunciado-titulo').innerText = q.titulo;
+            document.getElementById('enunciado-texto').innerHTML = q.enunciado;
+
+            const specsGrid = document.getElementById('specs-grid');
+            specsGrid.innerHTML = '';
+            q.specs.forEach(s => {
+                specsGrid.innerHTML += `
+                    <div class="spec-item">
+                        <div class="spec-label">${s.label}</div>
+                        <div class="spec-value">${s.val}</div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('hint-text-custom').innerHTML = q.dica;
+            document.getElementById('formula-box').innerText = q.formula;
+
+            document.getElementById('unit-label').innerText = q.unidade;
+            document.getElementById('pressao-input').value = '';
+            updateGaugeFromInput();
+
+            const assembly = document.getElementById('assembly');
+            assembly.style.transform = 'translateY(0px)';
+            document.getElementById('cylinder-glow').style.background = 'rgba(2, 132, 199, 0.0)';
+            document.getElementById('p-line').style.background = '#94a3b8';
+
+            const banner = document.getElementById('feedback-banner');
+            banner.className = 'feedback-banner';
+            document.getElementById('feedback-msg').innerText = "Insira o valor no manômetro e clique em EXECUTAR TESTE.";
+            document.getElementById('feedback-detail').innerText = "";
+
+            document.getElementById('btn-action').style.display = 'flex';
+            document.getElementById('btn-next').style.display = 'none';
+
+            emAnimacao = false;
+        }
+
+        function testarPressao() {
+            if (emAnimacao) return;
+
+            const inputVal = parseFloat(document.getElementById('pressao-input').value);
+            const banner = document.getElementById('feedback-banner');
+            const q = exercicios[nivelAtual];
+
+            if (isNaN(inputVal)) {
+                banner.className = 'feedback-banner show error';
+                document.getElementById('feedback-msg').innerText = "⚠️ Entrada Inválida!";
+                document.getElementById('feedback-detail').innerText = "Por favor, informe um número para a pressão no manômetro.";
+                return;
+            }
+
+            emAnimacao = true;
+            playSound('pressurize');
+
+            document.getElementById('cylinder-glow').style.background = 'rgba(2, 132, 199, 0.3)';
+            document.getElementById('p-line').style.background = '#0284c7';
+
+            const erroAbsoluto = Math.abs(inputVal - q.respostaGabarito);
+
+            setTimeout(() => {
+                if (erroAbsoluto <= q.tolerancia) {
+                    playSound('success');
+                    
+                    document.getElementById('assembly').style.transform = 'translateY(-140px)';
+                    document.getElementById('cylinder-glow').style.background = 'rgba(22, 163, 74, 0.4)';
+
+                    banner.className = 'feedback-banner show success';
+                    document.getElementById('feedback-msg').innerText = "🌟 EXCELENTE! CÁLCULO EXATO!";
+                    document.getElementById('feedback-detail').innerText = `A pressão de ${inputVal} ${q.unidade} acionou o atuador com perfeição.`;
+
+                    document.getElementById('btn-action').style.display = 'none';
+                    document.getElementById('btn-next').style.display = 'flex';
+
+                } else {
+                    playSound('fail');
+
+                    const assembly = document.getElementById('assembly');
+                    assembly.classList.add('anim-fail');
+                    document.getElementById('cylinder-glow').style.background = 'rgba(220, 38, 38, 0.4)';
+
+                    banner.className = 'feedback-banner show error';
+                    
+                    if (inputVal < q.respostaGabarito) {
+                        document.getElementById('feedback-msg').innerText = "❌ FALHA: PRESSÃO INSUFICIENTE!";
+                        document.getElementById('feedback-detail').innerText = "A força pneumática não venceu a carga necessária. Revise seus cálculos!";
+                    } else {
+                        document.getElementById('feedback-msg').innerText = "❌ FALHA: SOBREPRESSÃO EXCESSIVA!";
+                        document.getElementById('feedback-detail').innerText = "A pressão excedeu o ponto ideal do sistema. Ajuste para o valor exato calculado.";
+                    }
+
+                    setTimeout(() => {
+                        assembly.classList.remove('anim-fail');
+                        emAnimacao = false;
+                    }, 1200);
+                }
+            }, 500);
+        }
+
+        function proximaQuestao() {
+            nivelAtual++;
+            carregarQuestao();
+        }
+
+        function reiniciarSimulador() {
+            nivelAtual = 0;
+            document.getElementById('main-app').style.display = 'grid';
+            document.querySelector('.controls-card').style.display = 'flex';
+            document.getElementById('completion-screen').style.display = 'none';
+            carregarQuestao();
+        }
+
+        /* Funções de Modal e Calculadora */
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function calcInput(val) {
+            document.getElementById('calc-screen').value += val;
+        }
+
+        function calcClear() {
+            document.getElementById('calc-screen').value = '';
+        }
+
+        function calcEquals() {
+            try {
+                document.getElementById('calc-screen').value = eval(document.getElementById('calc-screen').value);
+            } catch (e) {
+                document.getElementById('calc-screen').value = 'Erro';
+            }
+        }
+
+        window.onload = carregarQuestao;
+    </script>
+</body>
+</html>
